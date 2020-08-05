@@ -28,4 +28,6 @@ names(idat)
 
 #using limma instead
 idatfiles = dir(pattern="idat")
-bgxfile = dir(pattern="bgx") # need to get this from illumina website
+
+#Accessed the HT-12 Human v4 bgx file from Ilumina Site https://support.illumina.com/downloads/humanht-12_v4_product_file.html
+bgxfile = dir(pattern="bgx")
