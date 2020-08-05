@@ -27,7 +27,35 @@ idat <- readIDAT("3998423016_A_Grn.idat")
 names(idat)
 
 #using limma instead
+library(limma)
 idatfiles = dir(pattern="idat")
 
 #Accessed the HT-12 Human v4 bgx file from Ilumina Site https://support.illumina.com/downloads/humanht-12_v4_product_file.html
 bgxfile = dir(pattern="bgx")
+
+raw <- read.idat(idatfiles, bgxfile)
+
+#plotting the probes signal intensity against negative control probes
+pdf("boxplots_preNorm.pdf")
+par(mfrow=c(1,2))
+boxplot(log2(raw$E[raw$genes$Status=="regular",]),range=0, xlab="Arrays", ylab="log2 intensities", main= "Regular probes")
+boxplot(log2(raw$E[raw$genes$Status=="negative",]),range=0, xlab="Arrays", ylab="log2 intensities", main= "Negative control probes")
+dev.off()
+
+#check for the proportion of probes on a microarray that correspond to the expressed genes 
+#based on shi et al. 2010
+propexp <- propexpr(raw)
+propexp
+dim(propexp) <- c(12,9) #set to this so I can see all 108 files clearly in View.
+View(propexp)
+
+mean(propexp)
+summary(propexp)
+summary(propexpr(raw))
+#the proportion of probes varies between 0.3776 and 0.5869 (38% - 58%) mean is 53%
+#lowest is 3998443071_F_Grn 33.776
+
+#read the SDRF as a targets file
+library(affy)
+targets <- read.AnnotatedDataFrame(file="withcentiles.sdrf.txt", header=TRUE)
+targets <- pData(targets)
