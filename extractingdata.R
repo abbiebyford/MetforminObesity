@@ -57,5 +57,30 @@ summary(propexpr(raw))
 
 #read the SDRF as a targets file
 library(affy)
-targets <- read.AnnotatedDataFrame(file="withcentiles.sdrf.txt", header=TRUE)
+targets <- read.AnnotatedDataFrame(file="withcentilesnew.sdrf.txt", header=TRUE)
 targets <- pData(targets)
+
+colnames(targets) #to get names of columns
+
+#normalise data using quantile normalisation
+y <- neqc(raw)
+
+
+#Set the birthweight class and infant sex as a variable
+targets_Class <- targets[, "Class"]
+targets_infantsex <- targets[, "Characteristics_sex_baby"]
+
+#Set the different levels of class and infant sex
+Class_Levels <- c("LGA", "AGA", "SGA")
+targets_Class <- factor(targets_Class, levels=Class_Levels)
+
+infantsex_Levels <- c("female", "male")
+targets_infantsex <- factor(targets_infantsex, levels=infantsex_Levels)
+
+#detect broad differences in expression related to different variables from target file
+pdf("MDSplots.pdf")
+par(mfrow=c(1,2))
+plotMDS(y, gene.selection="common", labels=targets_Class)
+plotMDS(y, gene.selection="common", labels=targets_infantsex)
+dev.off()
+
