@@ -64,7 +64,15 @@ colnames(targets) #to get names of columns
 
 #normalise data using quantile normalisation
 y <- neqc(raw)
+#This performs normexp background correction using negative controls, and then quantile nromalises and finally log2 trandformes. It automatically removes control probes, only regular probes in Y
 
+dim(y)
+
+#filter out probes that are not expressed
+#according to vignette keep those that are expressed in at least 3 arrays?
+
+expressed <- rowSums(y$other$Detection < 0.05) >= 3
+#doesnt work. using limma vignette, 17.3.5
 
 #Set the birthweight class and infant sex as a variable
 targets_Class <- targets[, "Class"]
@@ -78,9 +86,27 @@ infantsex_Levels <- c("female", "male")
 targets_infantsex <- factor(targets_infantsex, levels=infantsex_Levels)
 
 #detect broad differences in expression related to different variables from target file
+
 pdf("MDSplots.pdf")
 par(mfrow=c(1,2))
 plotMDS(y, gene.selection="common", labels=targets_Class)
 plotMDS(y, gene.selection="common", labels=targets_infantsex)
 dev.off()
+
+#hierarchial cluster
+pdf("hierClust.pdf")
+par(mfrow=c(1,2))
+d = dist(t(y$E))
+plot(hclust(d), labels=targets_Class)
+plot(hclust(d), labels=targets_infantsex)
+dev.off()
+
+#not sure how to interpret the above, are they necessary?
+
+#probably want to check for batch effects, ie. samples processed on a certain day, array, flow cell etc.
+#I dont have this??
+
+
+#differential expression analyses
+
 
